@@ -17,9 +17,9 @@ public class LibraryServiceImpl implements LibraryService {
     @Override
     public void addBook(Book book) {
         List<Book> bookList = bookslist.get(book.getBookTitle());
-        if (bookList == null){
+        if (bookList == null) {
             bookList = new ArrayList<>();
-            bookslist.put(book.getBookTitle(),bookList);
+            bookslist.put(book.getBookTitle(), bookList);
         }
         bookList.add(book);
     }
@@ -36,7 +36,7 @@ public class LibraryServiceImpl implements LibraryService {
 
         Queue<Person> queue = library.getPersonOnQueue();
 
-        if (queue.isEmpty()){
+        if (queue.isEmpty()) {
             return "No one is in the queue to issue the book";
         }
 
@@ -44,25 +44,37 @@ public class LibraryServiceImpl implements LibraryService {
         String requesterName = nextPersonOnQueue.getFirstName() + " " + nextPersonOnQueue.getLastName();
 
         if (listOfBooks.isEmpty() || listOfBooks.get(0).getCopies() == 0) {
-            return  requesterName + " requested for " +bookTitle + ", but it  has taken because there are 0 copies in the library .";
+            return requesterName + " requested for " + bookTitle + ", but it  has taken because there are 0 copies in the library .";
         }
         Book availableBook = listOfBooks.get(0);
 
         BookServiceImpl bookService = new BookServiceImpl();
 
-        if (nextPersonOnQueue.getRole().equals(Role.TEACHER)){
+        if (nextPersonOnQueue.getRole().equals(Role.TEACHER)) {
             Teacher teacher = (Teacher) nextPersonOnQueue;
-            bookService.removeMultipleCopies(availableBook,teacher);
-        }else if (nextPersonOnQueue.getRole().equals(Role.SENIOR_STUDENT) || nextPersonOnQueue.getRole().equals(Role.JUNIOR_STUDENT)){
+            bookService.removeMultipleCopies(availableBook, teacher);
+        } else if (nextPersonOnQueue.getRole().equals(Role.SENIOR_STUDENT) || nextPersonOnQueue.getRole().equals(Role.JUNIOR_STUDENT)) {
             bookService.removeCopy(availableBook);
         }
 
         int remainingCopies = availableBook.getCopies();
-        return "Book with title: " + bookTitle + " has been given to  " + nextPersonOnQueue.getFirstName() + " " + nextPersonOnQueue.getLastName() +", who is the " + nextPersonOnQueue.getRole() + ", we have " + remainingCopies + " copies left.";
+        return "Book with title: " + bookTitle + " has been given to  " + nextPersonOnQueue.getFirstName() + " " + nextPersonOnQueue.getLastName() + ", who is the " + nextPersonOnQueue.getRole() + ", we have " + remainingCopies + " copies left.";
 
 
     }
 
+
+    @Override
+    public void implementFIFO(Person person) {
+        library.getListForFIFO().add(person);
+        Iterator<Person> iterator = library.getListForFIFO().iterator();
+
+        if(iterator.hasNext()) {
+            String name = String.valueOf(iterator.next());
+            System.out.println(  person.getFirstName() + " " +person.getLastName() + " is being attended to .");
+        }
+
+    }
 
 
 }

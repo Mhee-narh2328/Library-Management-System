@@ -9,5 +9,6 @@ public interface LibraryService {
     void addBook(Book book);
     void addToQueue(Person person);
     String giveBook(String bookTitle);
+    void implementFIFO(Person person);
 
 }

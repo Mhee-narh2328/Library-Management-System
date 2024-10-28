@@ -50,6 +50,26 @@ public class Main {
 
         library.getPersonOnQueue().clear();
 
+        //SCENARIO 3 - FOR IMPLEMENTING FIFO i.e First Come First Serve
+
+        //Instance for Student
+        Student juniorStudent2 = new Student(1, "Muminat", "Adefabi", Gender.FEMALE, Role.JUNIOR_STUDENT);
+        Student seniorStudent2 = new Student(2, "Tomilola", "Aturaka", Gender.MALE, Role.SENIOR_STUDENT);
+
+        //Instance for Teacher
+        Teacher teacher1 = new Teacher(1, "uzoma", "Ibezim", Gender.MALE, Role.TEACHER ,2);
+
+        System.out.println("*********************************************THIRD SCENARIO (FIFO)*********************************");
+        libraryService.implementFIFO(juniorStudent2);
+        libraryService.implementFIFO(seniorStudent2);
+        libraryService.implementFIFO(teacher1);
+
+//        System.out.println(libraryService.giveBook(book3.getBookTitle()));
+//        System.out.println(libraryService.giveBook(book3.getBookTitle()));
+//        System.out.println(libraryService.giveBook(book3.getBookTitle()));
+
+
+
 
 
 
