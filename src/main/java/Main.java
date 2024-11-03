@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) {
         //Create instance of book
         Book book1 = new Book(1, "Hafsatu Bebi", "Fatima Bello",2);
-        Book book2 = new Book(2, "Broken", "Fatima Bello",1);
+        Book book2 = new Book(2, "Broken", "Fatima Bello",2);
         Book book3 = new Book(3, "Twisted Games", "Anna Huang",2);
 
 
@@ -63,11 +63,6 @@ public class Main {
         libraryService.implementFIFO(juniorStudent2);
         libraryService.implementFIFO(seniorStudent2);
         libraryService.implementFIFO(teacher1);
-
-//        System.out.println(libraryService.giveBook(book3.getBookTitle()));
-//        System.out.println(libraryService.giveBook(book3.getBookTitle()));
-//        System.out.println(libraryService.giveBook(book3.getBookTitle()));
-
 
 
 

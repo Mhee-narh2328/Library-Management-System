@@ -11,70 +11,70 @@ import java.util.*;
 
 public class LibraryServiceImpl implements LibraryService {
 
-    Library library = new Library();
-    HashMap<String, List<Book>> bookslist = library.getBooksOnShelf();
+    private final Library library = new Library();
+    private final Map<String, List<Book>> bookslist = library.getBooksOnShelf();
 
     @Override
     public void addBook(Book book) {
-        List<Book> bookList = bookslist.get(book.getBookTitle());
-        if (bookList == null) {
-            bookList = new ArrayList<>();
-            bookslist.put(book.getBookTitle(), bookList);
-        }
-        bookList.add(book);
+        bookslist.computeIfAbsent(book.getBookTitle(), title -> new ArrayList<>()).add(book);
     }
 
     @Override
     public void addToQueue(Person person) {
         library.getPersonOnQueue().add(person);
-
     }
 
     @Override
     public String giveBook(String bookTitle) {
-        List<Book> listOfBooks = library.getBooksOnShelf().getOrDefault(bookTitle, new ArrayList<>());
-
-        Queue<Person> queue = library.getPersonOnQueue();
-
-        if (queue.isEmpty()) {
+        if (library.getPersonOnQueue().isEmpty()) {
             return "No one is in the queue to issue the book";
         }
 
-        Person nextPersonOnQueue = queue.poll();
-        String requesterName = nextPersonOnQueue.getFirstName() + " " + nextPersonOnQueue.getLastName();
+        Person nextPersonOnQueue = library.getPersonOnQueue().poll();
+        List<Book> listOfBooks = getBooksForTitle(bookTitle);
 
         if (listOfBooks.isEmpty() || listOfBooks.get(0).getCopies() == 0) {
-            return requesterName + " requested for " + bookTitle + ", but it  has taken because there are 0 copies in the library .";
+            return generateOutOfStockMessage(bookTitle, nextPersonOnQueue);
         }
+
         Book availableBook = listOfBooks.get(0);
-
-        BookServiceImpl bookService = new BookServiceImpl();
-
-        if (nextPersonOnQueue.getRole().equals(Role.TEACHER)) {
-            Teacher teacher = (Teacher) nextPersonOnQueue;
-            bookService.removeMultipleCopies(availableBook, teacher);
-        } else if (nextPersonOnQueue.getRole().equals(Role.SENIOR_STUDENT) || nextPersonOnQueue.getRole().equals(Role.JUNIOR_STUDENT)) {
-            bookService.removeCopy(availableBook);
-        }
-
-        int remainingCopies = availableBook.getCopies();
-        return "Book with title: " + bookTitle + " has been given to  " + nextPersonOnQueue.getFirstName() + " " + nextPersonOnQueue.getLastName() + ", who is the " + nextPersonOnQueue.getRole() + ", we have " + remainingCopies + " copies left.";
-
-
+        processBookRequest(availableBook, nextPersonOnQueue);
+        return generateSuccessMessage(bookTitle, availableBook, nextPersonOnQueue);
     }
-
 
     @Override
     public void implementFIFO(Person person) {
-        library.getListForFIFO().add(person);
-        Iterator<Person> iterator = library.getListForFIFO().iterator();
-
-        if(iterator.hasNext()) {
-            String name = String.valueOf(iterator.next());
-            System.out.println(  person.getFirstName() + " " +person.getLastName() + " is being attended to .");
-        }
-
+        addToQueue(person);
+        System.out.println(generateFIFOMessage(person) + " has been added to the queue.");
     }
 
+    // Helper methods
+    private List<Book> getBooksForTitle(String bookTitle) {
+        return bookslist.getOrDefault(bookTitle, new ArrayList<>());
+    }
 
+    private String generateOutOfStockMessage(String bookTitle, Person person) {
+        return String.format("%s %s who is a %s requested for %s, but it is unavailable due to zero copies in the library.",
+                person.getFirstName(), person.getLastName(), person.getRole(), bookTitle);
+    }
+
+    private void processBookRequest(Book book, Person person) {
+        BookServiceImpl bookService = new BookServiceImpl();
+
+        if (person.getRole() == Role.TEACHER) {
+            bookService.removeMultipleCopies(book, (Teacher) person);
+        } else if (EnumSet.of(Role.SENIOR_STUDENT, Role.JUNIOR_STUDENT).contains(person.getRole())) {
+            bookService.removeCopy(book);
+        }
+    }
+
+    private String generateSuccessMessage(String bookTitle, Book book, Person person) {
+        return String.format("Book with title: %s has been given to %s %s, who is a %s. We have %d copies left.",
+                bookTitle, person.getFirstName(), person.getLastName(), person.getRole(), book.getCopies());
+    }
+
+    private String generateFIFOMessage(Person person) {
+        return String.format("%s %s, who is a %s, is being attended to.",
+                person.getFirstName(), person.getLastName(), person.getRole());
+    }
 }

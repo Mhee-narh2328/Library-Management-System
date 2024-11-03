@@ -6,35 +6,36 @@ import model.Teacher;
 import services.BookService;
 
 public class BookServiceImpl implements BookService {
-    int bookLeft;
     @Override
     public void removeCopy(Book book) {
-        bookLeft = book.getCopies();
-        if (bookLeft > 0){
-            book.setCopies(bookLeft -1);
-        }
+        updateBookCopies(book, -1);
 
     }
 
     @Override
     public void addCopy(Book book) {
-        bookLeft = book.getCopies();
-        bookLeft++;
-        book.setCopies(bookLeft);
+        updateBookCopies(book, 1);
 
     }
 
     @Override
     public void removeMultipleCopies(Book book, Teacher teacher) {
-        int copiesToRemove = teacher.getCopiesNeeded(); // Get the number of copies the teacher wants to remove
-        int bookLeft = book.getCopies();
-
-        if (copiesToRemove > bookLeft) {
-            System.out.println("Not enough copies to remove.");
+        int copiesToRemove = teacher.getCopiesNeeded();
+        if (canRemoveCopies(book, copiesToRemove)) {
+            updateBookCopies(book, -copiesToRemove);
         } else {
-            book.setCopies(bookLeft - copiesToRemove);
+            System.out.println("Not enough copies to remove.");
         }
 
+    }
+
+    private void updateBookCopies(Book book, int change) {
+        int newCount = book.getCopies() + change;
+        book.setCopies(Math.max(newCount, 0));
+    }
+
+    private boolean canRemoveCopies(Book book, int copiesToRemove) {
+        return book.getCopies() >= copiesToRemove;
     }
 
 
